@@ -157,6 +157,8 @@ public class TopicPartitionWriter {
 
   @SuppressWarnings("fallthrough")
   public void write() {
+    log.info("Writing {} buffered records. Current state: {}", buffer.size(), this.state);
+
     long now = time.milliseconds();
     if (failureTime > 0 && now - failureTime < timeoutMs) {
       return;
