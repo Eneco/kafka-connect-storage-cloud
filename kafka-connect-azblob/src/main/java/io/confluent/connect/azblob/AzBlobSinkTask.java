@@ -99,7 +99,7 @@ public class AzBlobSinkTask extends SinkTask {
               connectorConfig.getClass(StorageCommonConfig.STORAGE_CLASS_CONFIG);
       storage = StorageFactory.createStorage(storageClass, AzBlobSinkConnectorConfig.class, connectorConfig, url);
       if (!storage.bucketExists()) {
-        throw new DataException("No-existent S3 bucket: " + connectorConfig.getBucketName());
+        throw new DataException("Non-existent container: " + connectorConfig.getContainerName());
       }
 
       writerProvider = newFormat().getRecordWriterProvider();

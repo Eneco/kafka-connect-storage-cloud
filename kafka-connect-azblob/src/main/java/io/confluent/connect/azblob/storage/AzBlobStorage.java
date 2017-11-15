@@ -55,145 +55,160 @@ Blob: A file of any type and size. Azure Storage offers three types of blobs: bl
  */
 public class AzBlobStorage implements Storage<AzBlobSinkConnectorConfig, Iterable<ListBlobItem>> {
 
-  private final String url;
-  private final String bucketName;
-  private final AzBlobSinkConnectorConfig conf;
-  private static final String VERSION_FORMAT = "APN/1.0 Confluent/1.0 KafkaS3Connector/%s";
+    private final String url;
+    private final String containerName;
+    private final AzBlobSinkConnectorConfig conf;
+    private static final String VERSION_FORMAT = "APN/1.0 Confluent/1.0 KafkaS3Connector/%s";
     private final CloudStorageAccount storageAccount;
     private final CloudBlobClient blobClient;
     private final CloudBlobContainer container;
 
     /**
-   * Construct an S3 storage class given a configuration and an AWS S3 address.
-   *
-   * @param conf the S3 configuration.
-   * @param url the S3 address.
-   */
-  public AzBlobStorage(AzBlobSinkConnectorConfig conf, String url) throws URISyntaxException, StorageException, InvalidKeyException {
-    this.url = url;
-    this.conf = conf;
-    this.bucketName = conf.getBucketName();
+     * Construct an S3 storage class given a configuration and an AWS S3 address.
+     *
+     * @param conf the S3 configuration.
+     * @param url  the S3 address.
+     */
+    public AzBlobStorage(AzBlobSinkConnectorConfig conf, String url) throws URISyntaxException, StorageException, InvalidKeyException {
+        this.url = url;
+        this.conf = conf;
+        this.containerName = conf.getContainerName();
 
-      // Retrieve storage account from connection-string.
+        // Retrieve storage account from connection-string.
         storageAccount = CloudStorageAccount.parse(conf.getStorageConnectionString());
 
-      // Create the blob client.
-      blobClient = storageAccount.createCloudBlobClient();
+        // Create the blob client.
+        blobClient = storageAccount.createCloudBlobClient();
 
 
-      // Get a reference to a container.
-      // The container name must be lower case
+        // Get a reference to a container.
+        // The container name must be lower case
         container = blobClient.getContainerReference(conf.getContainerName());
 
 
-      // Create the container if it does not exist.
-      container.createIfNotExists();
-  }
-
-  // Visible for testing.
-  public AzBlobStorage(AzBlobSinkConnectorConfig conf, String url, String bucketName, CloudStorageAccount storageAccount, CloudBlobClient blobClient, CloudBlobContainer container) {
-    this.url = url;
-    this.conf = conf;
-    this.bucketName = bucketName;
-    this.storageAccount = storageAccount;
-    this.blobClient = blobClient;
-    this.container = container;
-  }
-
-  /**
-   * {@inheritDoc}
-   *
-   * @throws StorageException
-   */
-  @Override
-  public boolean exists(String name) {
-    return isNotBlank(name) && container.getBlockBlobReference(name);
-  }
-
-  /**
-   * {@inheritDoc}
-   *
-   * @throws URISyntaxException
-   * @throws StorageException
-   */
-  public boolean bucketExists() throws URISyntaxException, StorageException {
-//    return StringUtils.isNotBlank(bucketName) && s3.doesBucketExist(bucketName);
-    return isNotBlank(bucketName) && blobClient.getContainerReference(bucketName);
-  }
-
-  /**
-   * {@inheritDoc}
-   *
-   */
-  @Override
-  public boolean create(String name) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * {@inheritDoc}
-   * This method is not supported in S3 storage.
-   *
-   * @throws UnsupportedOperationException
-   */
-  @Override
-  public OutputStream append(String filename) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * {@inheritDoc}
-   *
-   */
-  @Override
-  public void delete(String name) {
-      throw new UnsupportedOperationException();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void close() {}
-
-  /**
-   * {@inheritDoc}
-   *
-   */
-  @Override
-  public Iterable<ListBlobItem> list(String path) {
-      // TODO listBlobs has some optional arguments
-    return container.listBlobs(path);
-  }
-
-  @Override
-  public AzBlobSinkConnectorConfig conf() { return conf; }
-
-  @Override
-  public String url() {
-    return url;
-  }
-
-  @Override
-  public SeekableInput open(String path, AzBlobSinkConnectorConfig conf) {
-    throw new UnsupportedOperationException("File reading is not currently supported in S3 Connector");
-  }
-
-  @Override
-  public OutputStream create(String path, AzBlobSinkConnectorConfig conf, boolean overwrite) {
-    return create(path, overwrite);
-  }
-
-  public AzBlobOutputStream create(String path, boolean overwrite) {
-    if (!overwrite) {
-      throw new UnsupportedOperationException("Creating a file without overwriting is not currently supported in AZ Blob Connector");
+        // Create the container if it does not exist.
+        container.createIfNotExists();
     }
 
-    if (StringUtils.isBlank(path)) {
-      throw new IllegalArgumentException("Path can not be empty!");
+    // Visible for testing.
+    public AzBlobStorage(AzBlobSinkConnectorConfig conf, String url, String containerName, CloudStorageAccount storageAccount, CloudBlobClient blobClient, CloudBlobContainer container) {
+        this.url = url;
+        this.conf = conf;
+        this.containerName = containerName;
+        this.storageAccount = storageAccount;
+        this.blobClient = blobClient;
+        this.container = container;
     }
 
-    // currently ignore what is passed as method argument.
-    return new AzBlobOutputStream(path, this.conf, container);
-  }
+    /**
+     * {@inheritDoc}
+     *
+     * @throws URISyntaxException
+     * @throws StorageException
+     */
+    @Override
+    public boolean exists(String name) {
+        try {
+            return isNotBlank(name) && container.getBlockBlobReference(name).exists();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws URISyntaxException
+     * @throws StorageException
+     */
+    public boolean bucketExists() throws URISyntaxException, StorageException {
+//    return StringUtils.isNotBlank(containerName) && s3.doesBucketExist(containerName);
+        return isNotBlank(containerName) && blobClient.getContainerReference(containerName).exists();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean create(String name) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * {@inheritDoc}
+     * This method is not supported in S3 storage.
+     *
+     * @throws UnsupportedOperationException
+     */
+    @Override
+    public OutputStream append(String filename) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void delete(String name) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void close() {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Iterable<ListBlobItem> list(String path) {
+        // TODO listBlobs has some optional arguments
+        return container.listBlobs(path);
+    }
+
+    @Override
+    public AzBlobSinkConnectorConfig conf() {
+        return conf;
+    }
+
+    @Override
+    public String url() {
+        return url;
+    }
+
+    @Override
+    public SeekableInput open(String path, AzBlobSinkConnectorConfig conf) {
+        throw new UnsupportedOperationException("File reading is not currently supported in AZ Blob Connector");
+    }
+
+    @Override
+    public OutputStream create(String path, AzBlobSinkConnectorConfig conf, boolean overwrite) {
+        return create(path, overwrite);
+    }
+
+    public BlobOutputStream create(String path, boolean overwrite) {
+        if (!overwrite) {
+            throw new UnsupportedOperationException("Creating a file without overwriting is not currently supported in AZ Blob Connector");
+        }
+
+        if (StringUtils.isBlank(path)) {
+            throw new IllegalArgumentException("Path can not be empty!");
+        }
+
+        CloudBlockBlob blob = null;
+        BlobOutputStream stream;
+        try {
+            blob = container.getBlockBlobReference(path);
+            stream = blob.openOutputStream();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+
+        return stream;
+    }
 }

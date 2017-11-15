@@ -18,7 +18,7 @@ package io.confluent.connect.azblob.format.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.confluent.connect.azblob.storage.AzBlobOutputStream;
+import com.microsoft.azure.storage.blob.BlobOutputStream;
 import io.confluent.connect.azblob.storage.AzBlobStorage;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.errors.ConnectException;
@@ -58,7 +58,7 @@ public class JsonRecordWriterProvider implements RecordWriterProvider<AzBlobSink
   public RecordWriter getRecordWriter(final AzBlobSinkConnectorConfig conf, final String filename) {
     try {
       return new RecordWriter() {
-        final AzBlobOutputStream s3out = storage.create(filename, true);
+        final BlobOutputStream s3out = storage.create(filename, true);
         final JsonGenerator writer = mapper.getFactory()
                                          .createGenerator(s3out)
                                          .setRootValueSeparator(null);
@@ -87,7 +87,8 @@ public class JsonRecordWriterProvider implements RecordWriterProvider<AzBlobSink
             // Flush is required here, because closing the writer will close the underlying S3 output stream before
             // committing any data to S3.
             writer.flush();
-            s3out.commit();
+//          s3out.commit(); // roland: az blob outputstream does not have commit method
+            log.info("TODO commit");
             writer.close();
           } catch (IOException e) {
             throw new ConnectException(e);

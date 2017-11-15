@@ -16,7 +16,7 @@
 
 package io.confluent.connect.azblob.format.avro;
 
-import io.confluent.connect.azblob.storage.AzBlobOutputStream;
+import com.microsoft.azure.storage.blob.BlobOutputStream;
 import io.confluent.connect.azblob.storage.AzBlobStorage;
 import org.apache.avro.file.CodecFactory;
 import org.apache.avro.file.DataFileWriter;
@@ -58,7 +58,7 @@ public class AvroRecordWriterProvider implements RecordWriterProvider<AzBlobSink
     return new RecordWriter() {
       final DataFileWriter<Object> writer = new DataFileWriter<>(new GenericDatumWriter<>());
       Schema schema = null;
-      AzBlobOutputStream s3out;
+      BlobOutputStream s3out;
 
       @Override
       public void write(SinkRecord record) {
@@ -94,7 +94,8 @@ public class AvroRecordWriterProvider implements RecordWriterProvider<AzBlobSink
           // Flush is required here, because closing the writer will close the underlying S3 output stream before
           // committing any data to S3.
           writer.flush();
-          s3out.commit();
+//          s3out.commit(); // roland: az blob outputstream does not have commit method
+          log.info("TODO commit");
           writer.close();
         } catch (IOException e) {
           throw new ConnectException(e);

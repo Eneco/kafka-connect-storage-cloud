@@ -31,8 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import io.confluent.connect.azblob.format.avro.AvroFormat;
-import io.confluent.connect.azblob.format.json.JsonFormat;
 import io.confluent.connect.storage.StorageSinkConnectorConfig;
 import io.confluent.connect.storage.common.ComposableConfig;
 import io.confluent.connect.storage.common.GenericRecommender;
@@ -84,9 +82,9 @@ public class AzBlobSinkConnectorConfig extends StorageSinkConnectorConfig {
         Arrays.<Object>asList(AzBlobStorage.class)
     );
 
-    FORMAT_CLASS_RECOMMENDER.addValidValues(
-        Arrays.<Object>asList(AvroFormat.class, JsonFormat.class)
-    );
+//    FORMAT_CLASS_RECOMMENDER.addValidValues(
+//        Arrays.<Object>asList(AvroFormat.class, JsonFormat.class)
+//    );
 
     PARTITIONER_CLASS_RECOMMENDER.addValidValues(
         Arrays.<Object>asList(
