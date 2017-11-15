@@ -27,7 +27,7 @@
     <fileSets>
         <fileSet>
             <directory>${project.parent.basedir}</directory>
-            <outputDirectory>share/doc/kafka-connect-s3/</outputDirectory>
+            <outputDirectory>share/doc/kafka-connect-azblob/</outputDirectory>
             <includes>
                 <include>version.txt</include>
                 <include>README*</include>
@@ -36,7 +36,7 @@
         </fileSet>
         <fileSet>
             <directory>${project.basedir}</directory>
-            <outputDirectory>share/doc/kafka-connect-s3/</outputDirectory>
+            <outputDirectory>share/doc/kafka-connect-azblob/</outputDirectory>
             <includes>
                 <include>licenses.html</include>
                 <include>licenses/</include>
@@ -45,7 +45,7 @@
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/config</directory>
-            <outputDirectory>etc/kafka-connect-s3</outputDirectory>
+            <outputDirectory>etc/kafka-connect-azblob</outputDirectory>
             <includes>
                 <include>*</include>
             </includes>
@@ -53,7 +53,7 @@
     </fileSets>
     <dependencySets>
         <dependencySet>
-            <outputDirectory>share/java/kafka-connect-s3</outputDirectory>
+            <outputDirectory>share/java/kafka-connect-azblob</outputDirectory>
             <useProjectArtifact>true</useProjectArtifact>
             <useTransitiveFiltering>true</useTransitiveFiltering>
             <excludes>

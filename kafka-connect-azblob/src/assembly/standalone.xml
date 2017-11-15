@@ -28,7 +28,7 @@
     <fileSets>
         <fileSet>
             <directory>${project.parent.basedir}</directory>
-            <outputDirectory>share/doc/kafka-connect-s3/</outputDirectory>
+            <outputDirectory>share/doc/kafka-connect-azblob/</outputDirectory>
             <includes>
                 <include>version.txt</include>
                 <include>README*</include>
@@ -37,7 +37,7 @@
         </fileSet>
         <fileSet>
             <directory>${project.basedir}</directory>
-            <outputDirectory>share/doc/kafka-connect-s3/</outputDirectory>
+            <outputDirectory>share/doc/kafka-connect-azblob/</outputDirectory>
             <includes>
                 <include>licenses.html</include>
                 <include>licenses/</include>
