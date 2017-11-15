@@ -30,7 +30,7 @@ import java.util.Map;
 import io.confluent.connect.azblob.util.Version;
 
 /**
- * Connector class for Amazon Simple Storage Service (S3).
+ * Connector class for Azure Blob Storage.
  */
 public class AzBlobSinkConnector extends SinkConnector {
   private static final Logger log = LoggerFactory.getLogger(AzBlobSinkConnector.class);

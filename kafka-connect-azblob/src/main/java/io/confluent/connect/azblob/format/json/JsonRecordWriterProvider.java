@@ -58,9 +58,9 @@ public class JsonRecordWriterProvider implements RecordWriterProvider<AzBlobSink
   public RecordWriter getRecordWriter(final AzBlobSinkConnectorConfig conf, final String filename) {
     try {
       return new RecordWriter() {
-        final BlobOutputStream s3out = storage.create(filename, true);
+        final BlobOutputStream azBlobOutputStream = storage.create(filename, true);
         final JsonGenerator writer = mapper.getFactory()
-                                         .createGenerator(s3out)
+                                         .createGenerator(azBlobOutputStream)
                                          .setRootValueSeparator(null);
 
         @Override
@@ -70,8 +70,8 @@ public class JsonRecordWriterProvider implements RecordWriterProvider<AzBlobSink
             Object value = record.value();
             if (value instanceof Struct) {
               byte[] rawJson = converter.fromConnectData(record.topic(), record.valueSchema(), value);
-              s3out.write(rawJson);
-              s3out.write(LINE_SEPARATOR_BYTES);
+              azBlobOutputStream.write(rawJson);
+              azBlobOutputStream.write(LINE_SEPARATOR_BYTES);
             } else {
               writer.writeObject(value);
               writer.writeRaw(LINE_SEPARATOR);
@@ -83,12 +83,11 @@ public class JsonRecordWriterProvider implements RecordWriterProvider<AzBlobSink
 
         @Override
         public void commit() {
+          log.debug("Committing");
           try {
-            // Flush is required here, because closing the writer will close the underlying S3 output stream before
-            // committing any data to S3.
+            // Flush is required here, because closing the writer will close the underlying AZ output stream before
+            // committing any data to AZ.
             writer.flush();
-//          s3out.commit(); // roland: az blob outputstream does not have commit method
-            log.info("TODO commit");
             writer.close();
           } catch (IOException e) {
             throw new ConnectException(e);
@@ -97,6 +96,7 @@ public class JsonRecordWriterProvider implements RecordWriterProvider<AzBlobSink
 
         @Override
         public void close() {
+          log.debug("Closing writer");
           try {
             writer.close();
           } catch (IOException e) {

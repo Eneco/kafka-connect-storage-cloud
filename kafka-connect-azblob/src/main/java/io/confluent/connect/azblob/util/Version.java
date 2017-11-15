@@ -29,7 +29,7 @@ public class Version {
     String versionProperty = "unknown";
     try {
       Properties props = new Properties();
-      props.load(Version.class.getResourceAsStream("/kafka-connect-s3-version.properties"));
+      props.load(Version.class.getResourceAsStream("/kafka-connect-azblob-version.properties"));
       versionProperty = props.getProperty("version", versionProperty).trim();
     } catch (Exception e) {
       log.warn("Error while loading version:", e);

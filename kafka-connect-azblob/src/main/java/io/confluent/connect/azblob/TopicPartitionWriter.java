@@ -415,7 +415,7 @@ public class TopicPartitionWriter {
     currentSchemas.clear();
     recordCount = 0;
     baseRecordTimestamp = null;
-    log.info("Files committed to S3. Target commit offset for {} is {}", tp, offsetToCommit);
+    log.info("Files committed to blob. Target commit offset for {} is {}", tp, offsetToCommit);
   }
 
   private void commitFile(String encodedPartition) {

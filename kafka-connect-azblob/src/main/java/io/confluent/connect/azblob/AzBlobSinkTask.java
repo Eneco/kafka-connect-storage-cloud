@@ -88,7 +88,7 @@ public class AzBlobSinkTask extends SinkTask {
     writerProvider = this.format.getRecordWriterProvider();
 
     open(context.assignment());
-    log.info("Started S3 connector task with assigned partitions {}", assignment);
+    log.info("Started AZ Blob connector task with assigned partitions {}", assignment);
   }
 
   public void start(Map<String, String> props) {
@@ -117,7 +117,7 @@ public class AzBlobSinkTask extends SinkTask {
       partitioner = newPartitioner(connectorConfig);
 
       open(context.assignment());
-      log.info("Started S3 connector task with assigned partitions: {}", assignment);
+      log.info("Started AZ Blob connector task with assigned partitions: {}", assignment);
     } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | InvocationTargetException
                  | NoSuchMethodException e) {
       throw new ConnectException("Reflection exception: ", e);

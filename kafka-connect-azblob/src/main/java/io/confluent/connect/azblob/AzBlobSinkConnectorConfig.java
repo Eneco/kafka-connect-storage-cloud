@@ -50,15 +50,6 @@ public class AzBlobSinkConnectorConfig extends StorageSinkConnectorConfig {
   public static final String AZ_STORAGEACCOUNT_CONNECTION_STRING = "azblob.storageaccount.connectionstring";
   public static final String AZ_STORAGE_CONTAINER_NAME = "azblob.containername";
 
-  public static final String PART_SIZE_CONFIG = "s3.part.size";
-  public static final int PART_SIZE_DEFAULT = 25 * 1024 * 1024;
-
-  public static final String WAN_MODE_CONFIG = "s3.wan.mode";
-  private static final boolean WAN_MODE_DEFAULT = false;
-
-  public static final String REGION_CONFIG = "s3.region";
-  public static final String REGION_DEFAULT = "FIXME-DEFAULT";
-
   public static final String AVRO_CODEC_CONFIG = "avro.codec";
   public static final String AVRO_CODEC_DEFAULT = "null";
 
@@ -110,7 +101,7 @@ public class AzBlobSinkConnectorConfig extends StorageSinkConnectorConfig {
     public static ConfigDef newConfigDef() {
     ConfigDef configDef = StorageSinkConnectorConfig.newConfigDef(FORMAT_CLASS_RECOMMENDER);
     {
-      final String group = "S3";
+      final String group = "AZ";
       int orderInGroup = 0;
 
       configDef.define(
@@ -135,43 +126,6 @@ public class AzBlobSinkConnectorConfig extends StorageSinkConnectorConfig {
           ++orderInGroup,
           Width.LONG,
           "Container name"
-      );
-
-      configDef.define(
-          REGION_CONFIG,
-          Type.STRING,
-          REGION_DEFAULT,
-          Importance.MEDIUM,
-          "The AWS region to be used the connector.",
-          group,
-          ++orderInGroup,
-          Width.LONG,
-          "AWS region"
-      );
-
-      configDef.define(
-          PART_SIZE_CONFIG,
-          Type.INT,
-          PART_SIZE_DEFAULT,
-          new PartRange(),
-          Importance.HIGH,
-          "The Part Size in S3 Multi-part Uploads.",
-          group,
-          ++orderInGroup,
-          Width.LONG,
-          "S3 Part Size"
-      );
-
-      configDef.define(
-          WAN_MODE_CONFIG,
-          Type.BOOLEAN,
-          WAN_MODE_DEFAULT,
-          Importance.MEDIUM,
-          "Use S3 accelerated endpoint.",
-          group,
-          ++orderInGroup,
-          Width.LONG,
-          "S3 accelerated endpoint enabled"
       );
 
       configDef.define(
@@ -223,17 +177,13 @@ public class AzBlobSinkConnectorConfig extends StorageSinkConnectorConfig {
     }
   }
 
-  public int getPartSize() {
-    return getInt(PART_SIZE_CONFIG);
-  }
-
   public String getAvroCodec() {
     return getString(AVRO_CODEC_CONFIG);
   }
 
   protected static String parseName(Map<String, String> props) {
     String nameProp = props.get("name");
-    return nameProp != null ? nameProp : "S3-sink";
+    return nameProp != null ? nameProp : "azblob-sink";
   }
 
   public String getName() {
@@ -266,7 +216,7 @@ public class AzBlobSinkConnectorConfig extends StorageSinkConnectorConfig {
     }
 
     private static class PartRange implements ConfigDef.Validator {
-    // S3 specific limit
+    // AZ specific limit // TODO check this value
     final int min = 5 * 1024 * 1024;
     // Connector specific
     final int max = Integer.MAX_VALUE;

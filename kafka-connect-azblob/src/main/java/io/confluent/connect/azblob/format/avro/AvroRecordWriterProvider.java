@@ -58,7 +58,7 @@ public class AvroRecordWriterProvider implements RecordWriterProvider<AzBlobSink
     return new RecordWriter() {
       final DataFileWriter<Object> writer = new DataFileWriter<>(new GenericDatumWriter<>());
       Schema schema = null;
-      BlobOutputStream s3out;
+      BlobOutputStream azBlobOutputStream;
 
       @Override
       public void write(SinkRecord record) {
@@ -66,10 +66,10 @@ public class AvroRecordWriterProvider implements RecordWriterProvider<AzBlobSink
           schema = record.valueSchema();
           try {
             log.info("Opening record writer for: {}", filename);
-            s3out = storage.create(filename, true);
+            azBlobOutputStream = storage.create(filename, true);
             org.apache.avro.Schema avroSchema = avroData.fromConnectSchema(schema);
             writer.setCodec(CodecFactory.fromString(conf.getAvroCodec()));
-            writer.create(avroSchema, s3out);
+            writer.create(avroSchema, azBlobOutputStream);
           } catch (IOException e) {
             throw new ConnectException(e);
           }
@@ -90,12 +90,11 @@ public class AvroRecordWriterProvider implements RecordWriterProvider<AzBlobSink
 
       @Override
       public void commit() {
+        log.debug("Committing");
         try {
-          // Flush is required here, because closing the writer will close the underlying S3 output stream before
-          // committing any data to S3.
+          // Flush is required here, because closing the writer will close the underlying AZ output stream before
+          // committing any data to AZ.
           writer.flush();
-//          s3out.commit(); // roland: az blob outputstream does not have commit method
-          log.info("TODO commit");
           writer.close();
         } catch (IOException e) {
           throw new ConnectException(e);
@@ -104,6 +103,7 @@ public class AvroRecordWriterProvider implements RecordWriterProvider<AzBlobSink
 
       @Override
       public void close() {
+        log.debug("Closing writer");
         try {
           writer.close();
         } catch (IOException e) {

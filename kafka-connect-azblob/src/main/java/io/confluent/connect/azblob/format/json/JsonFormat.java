@@ -49,12 +49,12 @@ public class JsonFormat implements Format<AzBlobSinkConnectorConfig, String> {
 
   @Override
   public SchemaFileReader<AzBlobSinkConnectorConfig, String> getSchemaFileReader() {
-    throw new UnsupportedOperationException("Reading schemas from S3 is not currently supported");
+    throw new UnsupportedOperationException("Reading schemas from blob is not currently supported");
   }
 
   @Override
   public HiveFactory getHiveFactory() {
-    throw new UnsupportedOperationException("Hive integration is not currently supported in S3 Connector");
+    throw new UnsupportedOperationException("Hive integration is not currently supported in blob Connector");
   }
 
 }

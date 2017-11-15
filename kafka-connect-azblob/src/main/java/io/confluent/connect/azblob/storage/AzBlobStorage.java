@@ -57,15 +57,15 @@ public class AzBlobStorage implements Storage<AzBlobSinkConnectorConfig, Iterabl
 
     private final String containerName;
     private final AzBlobSinkConnectorConfig conf;
-    private static final String VERSION_FORMAT = "APN/1.0 Confluent/1.0 KafkaS3Connector/%s";
+    private static final String VERSION_FORMAT = "APN/1.0 Confluent/1.0 KafkaAZBlobConnector/%s";
     private final CloudStorageAccount storageAccount;
     private final CloudBlobClient blobClient;
     private final CloudBlobContainer container;
 
     /**
-     * Construct an S3 storage class given a configuration and an AWS S3 address.
+     * Construct an AzBlobStorage class given a configuration and an AZ Storage account + container.
      *
-     * @param conf the S3 configuration.
+     * @param conf the AzBlobStorage configuration.
      */
     public AzBlobStorage(AzBlobSinkConnectorConfig conf, String url) throws URISyntaxException, StorageException, InvalidKeyException {
         this.conf = conf;
@@ -119,7 +119,6 @@ public class AzBlobStorage implements Storage<AzBlobSinkConnectorConfig, Iterabl
      * @throws StorageException
      */
     public boolean bucketExists() throws URISyntaxException, StorageException {
-//    return StringUtils.isNotBlank(containerName) && s3.doesBucketExist(containerName);
         return isNotBlank(containerName) && blobClient.getContainerReference(containerName).exists();
     }
 
@@ -133,7 +132,7 @@ public class AzBlobStorage implements Storage<AzBlobSinkConnectorConfig, Iterabl
 
     /**
      * {@inheritDoc}
-     * This method is not supported in S3 storage.
+     * This method is not supported in AZ Blob storage.
      *
      * @throws UnsupportedOperationException
      */
@@ -159,7 +158,7 @@ public class AzBlobStorage implements Storage<AzBlobSinkConnectorConfig, Iterabl
 
     @Override
     public String url() {
-        return "TODO";
+        return container.getUri().toString();
     }
 
     /**
