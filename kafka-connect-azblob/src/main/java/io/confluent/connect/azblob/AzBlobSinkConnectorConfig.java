@@ -114,6 +114,30 @@ public class AzBlobSinkConnectorConfig extends StorageSinkConnectorConfig {
       int orderInGroup = 0;
 
       configDef.define(
+          AZ_STORAGEACCOUNT_CONNECTION_STRING,
+          Type.STRING,
+          "default",
+          Importance.MEDIUM,
+          "The connection stirng.",
+          group,
+          ++orderInGroup,
+          Width.LONG,
+          "Connection String"
+      );
+
+      configDef.define(
+          AZ_STORAGE_CONTAINER_NAME,
+          Type.STRING,
+          "default",
+          Importance.MEDIUM,
+          "The container name.",
+          group,
+          ++orderInGroup,
+          Width.LONG,
+          "Container name"
+      );
+
+      configDef.define(
           REGION_CONFIG,
           Type.STRING,
           REGION_DEFAULT,

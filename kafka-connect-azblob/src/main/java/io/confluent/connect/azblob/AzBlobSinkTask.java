@@ -45,6 +45,9 @@ import io.confluent.connect.storage.format.RecordWriterProvider;
 import io.confluent.connect.storage.partitioner.Partitioner;
 import io.confluent.connect.storage.partitioner.PartitionerConfig;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static jdk.nashorn.internal.objects.ArrayBufferView.buffer;
+
 public class AzBlobSinkTask extends SinkTask {
   private static final Logger log = LoggerFactory.getLogger(AzBlobSinkTask.class);
 
@@ -89,6 +92,10 @@ public class AzBlobSinkTask extends SinkTask {
   }
 
   public void start(Map<String, String> props) {
+    checkNotNull("context must not be null", context);
+    checkNotNull("context assignment must not be null", context.assignment());
+
+    log.info("Starting SinkTask");
     try {
       connectorConfig = new AzBlobSinkConnectorConfig(props);
       url = connectorConfig.getString(StorageCommonConfig.STORE_URL_CONFIG);
@@ -97,7 +104,11 @@ public class AzBlobSinkTask extends SinkTask {
       Class<? extends AzBlobStorage> storageClass =
           (Class<? extends AzBlobStorage>)
               connectorConfig.getClass(StorageCommonConfig.STORAGE_CLASS_CONFIG);
-      storage = StorageFactory.createStorage(storageClass, AzBlobSinkConnectorConfig.class, connectorConfig, url);
+
+      log.info("Starting Storage with storageClass={} connectorConfig={}, url={}", storageClass, connectorConfig, url);
+
+//      storage = StorageFactory.createStorage(storageClass, AzBlobSinkConnectorConfig.class, connectorConfig, url);
+      storage = new AzBlobStorage(connectorConfig, "fakeurl");
       if (!storage.bucketExists()) {
         throw new DataException("Non-existent container: " + connectorConfig.getContainerName());
       }
@@ -169,14 +180,20 @@ public class AzBlobSinkTask extends SinkTask {
       String topic = record.topic();
       int partition = record.kafkaPartition();
       TopicPartition tp = new TopicPartition(topic, partition);
-      topicPartitionWriters.get(tp).buffer(record);
+      log.info("TopicPartition: {}", tp);
+      TopicPartitionWriter topicPartitionWriter = topicPartitionWriters.get(tp);
+      log.info("topicPartitionWriter: {}", topicPartitionWriter);
+      topicPartitionWriter.buffer(record);
     }
     if (log.isDebugEnabled()) {
       log.debug("Read {} records from Kafka", records.size());
     }
+    log.info("Read {} records from Kafka", records.size());
 
     for (TopicPartition tp : assignment) {
-      topicPartitionWriters.get(tp).write();
+      log.info("Writing topic partition {}", tp);
+      TopicPartitionWriter topicPartitionWriter = topicPartitionWriters.get(tp);
+      topicPartitionWriter.write();
     }
   }
 

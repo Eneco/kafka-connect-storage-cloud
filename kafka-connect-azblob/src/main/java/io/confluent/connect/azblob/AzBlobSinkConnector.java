@@ -58,7 +58,7 @@ public class AzBlobSinkConnector extends SinkConnector {
   public void start(Map<String, String> props) {
     configProps = new HashMap<>(props);
     config = new AzBlobSinkConnectorConfig(props);
-    log.info("Starting S3 connector {}", config.getName());
+    log.info("Starting AZ Blob connector {}", config.getName());
   }
 
   @Override
@@ -78,7 +78,7 @@ public class AzBlobSinkConnector extends SinkConnector {
 
   @Override
   public void stop() {
-    log.info("Shutting down S3 connector {}", config.getName());
+    log.info("Shutting down AZ Blob connector {}", config.getName());
   }
 
   @Override

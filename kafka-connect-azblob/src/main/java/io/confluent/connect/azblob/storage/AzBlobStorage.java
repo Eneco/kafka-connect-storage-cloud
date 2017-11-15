@@ -55,7 +55,6 @@ Blob: A file of any type and size. Azure Storage offers three types of blobs: bl
  */
 public class AzBlobStorage implements Storage<AzBlobSinkConnectorConfig, Iterable<ListBlobItem>> {
 
-    private final String url;
     private final String containerName;
     private final AzBlobSinkConnectorConfig conf;
     private static final String VERSION_FORMAT = "APN/1.0 Confluent/1.0 KafkaS3Connector/%s";
@@ -67,10 +66,8 @@ public class AzBlobStorage implements Storage<AzBlobSinkConnectorConfig, Iterabl
      * Construct an S3 storage class given a configuration and an AWS S3 address.
      *
      * @param conf the S3 configuration.
-     * @param url  the S3 address.
      */
     public AzBlobStorage(AzBlobSinkConnectorConfig conf, String url) throws URISyntaxException, StorageException, InvalidKeyException {
-        this.url = url;
         this.conf = conf;
         this.containerName = conf.getContainerName();
 
@@ -91,8 +88,7 @@ public class AzBlobStorage implements Storage<AzBlobSinkConnectorConfig, Iterabl
     }
 
     // Visible for testing.
-    public AzBlobStorage(AzBlobSinkConnectorConfig conf, String url, String containerName, CloudStorageAccount storageAccount, CloudBlobClient blobClient, CloudBlobContainer container) {
-        this.url = url;
+    public AzBlobStorage(AzBlobSinkConnectorConfig conf, String containerName, CloudStorageAccount storageAccount, CloudBlobClient blobClient, CloudBlobContainer container) {
         this.conf = conf;
         this.containerName = containerName;
         this.storageAccount = storageAccount;
@@ -161,6 +157,11 @@ public class AzBlobStorage implements Storage<AzBlobSinkConnectorConfig, Iterabl
     public void close() {
     }
 
+    @Override
+    public String url() {
+        return "TODO";
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -173,11 +174,6 @@ public class AzBlobStorage implements Storage<AzBlobSinkConnectorConfig, Iterabl
     @Override
     public AzBlobSinkConnectorConfig conf() {
         return conf;
-    }
-
-    @Override
-    public String url() {
-        return url;
     }
 
     @Override
