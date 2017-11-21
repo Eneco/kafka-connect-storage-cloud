@@ -206,4 +206,12 @@ public class AzBlobStorage implements Storage<AzBlobSinkConnectorConfig, Iterabl
 
         return stream;
     }
+
+    @Override
+    public String toString() {
+        return "AzBlobStorage{" +
+                "containerName='" + containerName + '\'' +
+                ", storageAccount=" + storageAccount +
+                '}';
+    }
 }
